@@ -18,6 +18,7 @@ Contents
 		- [MazeDiamond](#mazediamond)
 		- [MazeGuard](#mazeguard)
 		- [Player](#player)
+-[References](#references)
 
 ### Intro
 -----
@@ -72,6 +73,10 @@ This class contains the diamonds the player can collect on the way to increase s
 This class contains the monsters that can take life of the player if the player and monster are in one cell at any point of time. These guards are capable of moving by a few cells. 
 ##### Player 
 This class contains the player of the game and functions to move the player, reset it to start. 
+### References
+1. https://lazyfoo.net/tutorials/SDL/index.php
+2. https://github.com/maciejspychala/sdl-game
+3. https://github.com/alinp25/MazeGenerator
 
 
 
