@@ -132,6 +132,7 @@ void Maze::NextMazeCycle() {
         }
     }
 }
+
 void Maze::displayMazeDimensions() const {
   cout << "The width of the maze is " << width << endl;
   cout << "The height of the maze is " << height << endl;
@@ -166,6 +167,23 @@ void Maze::initialiseMaze(SDL_Renderer* Renderer){
     maze.push_back(mazeRow);
   }
   cout << "Maze has been intialised\n";
+}
+void Maze::initialiseMaze(SDL_Renderer* Renderer, int GameArea_w, int GameArea_h, int GameArea_y, int GameArea_x) {
+    finalPos_x = height - 1;
+    finalPos_y = width - 1;
+    for (int i = 0; i < height; i++) {
+        vector<Cell> mazeRow;
+        for (int j = 0; j < width; j++) {
+            Cell cell;
+            cell.row = i;
+            cell.col = j;
+            cell.roomRenderer = Renderer;
+            cell.MakeRoomRect(height, width, GameArea_w, GameArea_w, GameArea_y, GameArea_x);
+            mazeRow.push_back(cell);
+        }
+        maze.push_back(mazeRow);
+    }
+    cout << "Maze has been intialised\n";
 }
 
 

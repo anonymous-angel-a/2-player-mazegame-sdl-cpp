@@ -28,11 +28,24 @@ const char* soundfilename3 = "res/sounds/error.wav";
 
 SDL_Rect FullScreen{ 0, 0, width, height };
 
-
+//for single player
 SDL_Rect GameAreaFillRect{ GameArea_xOffset,
 							GameArea_yOffset,
 							GameArea_Width,
 			GameArea_Height };
+
+// for double player
+SDL_Rect GameAreaFillRect1{ GameArea_xOffset,
+							GameArea_yOffset,
+							width/2-10,
+			GameArea_Height-150 };
+
+SDL_Rect GameAreaFillRect2{ GameArea_xOffset + width/2+10,
+							GameArea_yOffset,
+							width/2-10,
+			GameArea_Height - 150 };
+
+
 
 int GameTitle_Width = width;
 int GameTitle_Height = height - GameArea_Height;
@@ -260,7 +273,7 @@ bool menuscreen() { // show menu screen
 }
 	return success;
 }
-// shows game over texture, returns true if player presses on SDL close window or clicks on exit game
+// shows game over screen
 bool GameOverScreen() {
 
 	bool success = false;
@@ -310,7 +323,7 @@ void drawstatistics(int& score, int& steps, int& lives) {
 	DrawText("Steps: " + to_string(steps), &rect2, 30, textfilename);
 	DrawText("Lives: " + to_string(lives), &rect3, 30, textfilename);
 }
-	
+//for single player	
 void GameScreen(shared_ptr<Maze> maze, std::shared_ptr<Player> player, int& score, int& steps, int& lives) {
 	showscreen(100, 100, 100);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -333,6 +346,46 @@ void GameScreen(shared_ptr<Maze> maze, std::shared_ptr<Player> player, int& scor
 	if (!player->hasKey) {
 		maze->mazeKeyPtr->AddObjToRenderer();
 	}
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderPresent(renderer);
+}
+//for double player
+void GameScreenDouble(shared_ptr<Maze> maze1, shared_ptr<Maze> maze2, std::shared_ptr<Player> player1, std::shared_ptr<Player> player2, int lives1, int score1, int lives2, int score2) {
+	showscreen(100, 100, 100);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderFillRect(renderer, &GameAreaFillRect1);
+	SDL_RenderFillRect(renderer, &GameAreaFillRect2);
+	DrawText("The Enchanted Castle", &GameTitleFillRect, 100, titletextfilename);
+	SDL_Rect rect{ (width - 800) / 2, height - 50, 800,50 };
+	DrawText("Press R to reset, Press ESC to exit", &rect, 50, textfilename);
+	SDL_Rect rect1{ GameAreaFillRect1.x,GameAreaFillRect1.y + GameAreaFillRect1.h+10, width/2-10, 70};
+	DrawText("Player 1: Lives= "+ to_string(lives1) + ",score= " + to_string(score1), &rect1, 50, textfilename);
+	SDL_Rect rect2{ GameAreaFillRect2.x,GameAreaFillRect2.y + GameAreaFillRect2.h + 10, width / 2 - 10, 70 };
+	DrawText("Player 2: Lives= " + to_string(lives2) + ",score= " + to_string(score2), &rect2, 50, textfilename);
+
+
+	maze1->displayMaze(renderer, GameAreaFillRect1.x, GameAreaFillRect1.y, GameAreaFillRect1.w, GameAreaFillRect1.h);
+	maze1->mazeKeyPtr->AddObjToRenderer();
+	for (int i = 0; i < maze1->mazeDiamondPtrs.size(); i++) {
+		if (maze1->mazeDiamondPtrs[i]->consumed == false) { maze1->mazeDiamondPtrs[i]->AddObjToRenderer(); }
+	}
+	for (int i = 0; i < maze1->mazeGuardPtrs.size(); i++) {
+		maze1->mazeGuardPtrs[i]->AddObjToRenderer();
+	}
+	maze1->mazeDoorPtr->AddObjToRenderer();
+	player1->AddObjToRenderer();
+
+	maze2->displayMaze(renderer, GameAreaFillRect2.x, GameAreaFillRect2.y, GameAreaFillRect2.w, GameAreaFillRect2.h);
+	maze2->mazeKeyPtr->AddObjToRenderer();
+	for (int i = 0; i < maze2->mazeDiamondPtrs.size(); i++) {
+		if (maze2->mazeDiamondPtrs[i]->consumed == false) { maze2->mazeDiamondPtrs[i]->AddObjToRenderer(); }
+	}
+	for (int i = 0; i < maze2->mazeGuardPtrs.size(); i++) {
+		maze2->mazeGuardPtrs[i]->AddObjToRenderer();
+	}
+	maze2->mazeDoorPtr->AddObjToRenderer();
+	player2->AddObjToRenderer();
+
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(renderer);
 }
@@ -364,7 +417,6 @@ int main(int argc, char** args) {
 		return 0;
 	}
 
-	int mazeX = 3, mazeY = 3;
 	curGameState = FrontMenu;
 	bool exit = false;
 	SDL_Event* gameEvent = new SDL_Event;
@@ -386,11 +438,11 @@ int main(int argc, char** args) {
 			if (exit) break;
 		}
 		if (curGameState == Win) {
-		    exit = winscreen();
+			exit = winscreen();
 			if (exit) break;
 		}
 		if (curGameState == GameOver) {
-			exit=GameOverScreen();
+			exit = GameOverScreen();
 			if (exit) break;
 		}
 		if (curGameState == Single) {
@@ -404,33 +456,168 @@ int main(int argc, char** args) {
 			maze->CreateDoor();
 			maze->CreateDiamonds();
 			maze->CreateGuards();
-			std::shared_ptr<Player> curPlayer = std::shared_ptr<Player>(new Player(maze->FindRoomByPos(maze->startPos_x, maze->startPos_y),renderer));
+			std::shared_ptr<Player> curPlayer = std::shared_ptr<Player>(new Player(maze->FindRoomByPos(maze->startPos_x, maze->startPos_y), renderer));
 			GameScreen(maze, curPlayer, score, steps, lives);
 			while (!exit && gameEvent->type != SDL_QUIT && curGameState == Single) {
-					SDL_WaitEvent(gameEvent);
-					if (gameEvent->type == SDL_KEYDOWN) {
+				SDL_WaitEvent(gameEvent);
+				if (gameEvent->type == SDL_KEYDOWN) {
 
-						if (gameEvent->key.keysym.sym == SDLK_ESCAPE) {
-							curGameState = Menu;
-							break;
-						}
-					
+					if (gameEvent->key.keysym.sym == SDLK_ESCAPE) {
+						curGameState = Menu;
+						break;
+					}
+
 					if (gameEvent->key.keysym.sym == SDLK_r && curPlayer->playerLives > 1) {
 						curPlayer->playerLives--;
 						lives--;
 						curPlayer->SetPlayerToStart(maze->FindRoomByPos(maze->startPos_x, maze->startPos_y));
-					} 
+					}
 					else if (gameEvent->key.keysym.sym == SDLK_DOWN ||
+						gameEvent->key.keysym.sym == SDLK_LEFT ||
+						gameEvent->key.keysym.sym == SDLK_RIGHT ||
+						gameEvent->key.keysym.sym == SDLK_UP) {
+						maze->NextMazeCycle();
+						int Pos_y = curPlayer->objPos_y;
+						int Pos_x = curPlayer->objPos_x;
+						switch (gameEvent->key.keysym.sym)
+						{
+						case SDLK_UP:
+							if (curPlayer->curObjRoom->northWall == false)
+							{
+								Pos_x--;
+
+							}
+							break;
+
+						case SDLK_RIGHT:
+							if (curPlayer->curObjRoom->eastWall == false)
+							{
+								Pos_y++;
+
+							}
+							break;
+
+						case SDLK_DOWN:
+							if (curPlayer->curObjRoom->southWall == false)
+							{
+								Pos_x++;
+							}
+							break;
+
+						case SDLK_LEFT:
+							if (curPlayer->curObjRoom->westWall == false)
+							{
+								Pos_y--;
+							}
+							break;
+
+						default:
+							std::cout << "Not a valid move!" << std::endl;
+							return false;
+							break;
+						}
+
+						if (Pos_x == curPlayer->objPos_x && curPlayer->objPos_y == Pos_y) {
+							std::cout << "Not a valid move" << endl;
+							continue;
+						}
+						else {
+							steps++;
+							std::shared_ptr<Cell> room = maze->FindRoomByPos(Pos_x, Pos_y);
+							if (Pos_x != maze->finalPos_x || Pos_y != maze->finalPos_y) { curPlayer->SetObjRoom(room); }
+							//check for key
+							if (maze->mazeKeyPtr->objPos_x == Pos_x && maze->mazeKeyPtr->objPos_y == Pos_y) {
+								curPlayer->hasKey = true;
+								Mix_PlayChannel(-1, keysound, 0);
+							}
+							//check for door
+							if (Pos_x == maze->finalPos_x && Pos_y == maze->finalPos_y && curPlayer->hasKey) {
+								curGameState = Win;
+								break;
+							}
+							//check for diamonds
+							for (int i = 0; i < maze->mazeDiamondPtrs.size(); i++) {
+								if (maze->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
+									maze->mazeDiamondPtrs[i]->consumed = true;
+									Mix_PlayChannel(-1, sparkle, 0);
+									score += 100;
+								}
+							}
+							//check for guards
+							for (int i = 0; i < maze->mazeGuardPtrs.size(); i++) {
+								if (maze->mazeGuardPtrs[i]->objPos_x == Pos_x && maze->mazeGuardPtrs[i]->objPos_y == Pos_y) {
+									Mix_PlayChannel(-1, boom, 0);
+									if (curPlayer->playerLives == 1) {
+										curGameState = GameOver;
+										break;
+									}
+									curPlayer->playerLives--;
+									lives--;
+									curPlayer->SetPlayerToStart(maze->FindRoomByPos(maze->startPos_x, maze->startPos_y));
+									break;
+								}
+							}
+						}
+					}
+					GameScreen(maze, curPlayer, score, steps, lives);
+
+				}
+
+			}
+		}
+		if (curGameState == Double) {
+			int score1 = 0;
+			int score2 = 0;
+			int lives1 = 10;
+			int lives2 = 10;
+			bool player1 = true;
+			std::shared_ptr<Maze> maze1 = std::shared_ptr<Maze>(new Maze());
+			maze1->initialiseMaze(renderer, GameAreaFillRect1.w, GameAreaFillRect1.h, GameAreaFillRect1.y, GameAreaFillRect1.x);
+			maze1->generateMaze();
+			maze1->CreateKey();
+			maze1->CreateDoor();
+			maze1->CreateDiamonds();
+			maze1->CreateGuards();
+			std::shared_ptr<Player> curPlayer1 = std::shared_ptr<Player>(new Player(maze1->FindRoomByPos(maze1->startPos_x, maze1->startPos_y), renderer));
+
+			std::shared_ptr<Maze> maze2 = std::shared_ptr<Maze>(new Maze());
+			maze2->initialiseMaze(renderer, GameAreaFillRect2.w, GameAreaFillRect2.h, GameAreaFillRect2.y, GameAreaFillRect2.x);
+			maze2->generateMaze();
+			maze2->CreateKey();
+			maze2->CreateDoor();
+			maze2->CreateDiamonds();
+			maze2->CreateGuards();
+			std::shared_ptr<Player> curPlayer2 = std::shared_ptr<Player>(new Player(maze2->FindRoomByPos(maze1->startPos_x, maze2->startPos_y), renderer));
+
+			GameScreenDouble(maze1, maze2, curPlayer1, curPlayer2, lives1, score1, lives2, score2);
+			while (!exit && gameEvent->type != SDL_QUIT && curGameState == Double) {
+				SDL_WaitEvent(gameEvent);
+				if (gameEvent->type == SDL_KEYDOWN) {
+					int x = 0;
+
+
+					if (gameEvent->key.keysym.sym == SDLK_ESCAPE) {
+						curGameState = Menu;
+						break;
+					}
+					if (player1) {
+						player1 = false;
+						if (gameEvent->key.keysym.sym == SDLK_r && curPlayer1->playerLives > 1) {
+							curPlayer1->playerLives--;
+							lives1--;
+							curPlayer1->SetPlayerToStart(maze1->FindRoomByPos(maze1->startPos_x, maze1->startPos_y));
+						}
+						else if (gameEvent->key.keysym.sym == SDLK_DOWN ||
 							gameEvent->key.keysym.sym == SDLK_LEFT ||
 							gameEvent->key.keysym.sym == SDLK_RIGHT ||
 							gameEvent->key.keysym.sym == SDLK_UP) {
-						    maze->NextMazeCycle();
-							int Pos_y = curPlayer->objPos_y;
-							int Pos_x = curPlayer->objPos_x;
-						switch (gameEvent->key.keysym.sym)
-						{
+							maze1->NextMazeCycle();
+							int Pos_y = curPlayer1->objPos_y;
+							int Pos_x = curPlayer1->objPos_x;
+							switch (gameEvent->key.keysym.sym)
+							{
 							case SDLK_UP:
-								if (curPlayer->curObjRoom->northWall == false)
+								if (curPlayer1->curObjRoom->northWall == false)
 								{
 									Pos_x--;
 
@@ -438,7 +625,7 @@ int main(int argc, char** args) {
 								break;
 
 							case SDLK_RIGHT:
-								if (curPlayer->curObjRoom->eastWall == false)
+								if (curPlayer1->curObjRoom->eastWall == false)
 								{
 									Pos_y++;
 
@@ -446,14 +633,14 @@ int main(int argc, char** args) {
 								break;
 
 							case SDLK_DOWN:
-								if (curPlayer->curObjRoom->southWall == false)
+								if (curPlayer1->curObjRoom->southWall == false)
 								{
 									Pos_x++;
 								}
 								break;
 
 							case SDLK_LEFT:
-								if (curPlayer->curObjRoom->westWall == false)
+								if (curPlayer1->curObjRoom->westWall == false)
 								{
 									Pos_y--;
 								}
@@ -465,56 +652,153 @@ int main(int argc, char** args) {
 								break;
 							}
 
-							if (Pos_x == curPlayer->objPos_x && curPlayer->objPos_y ==Pos_y) {
+							if (Pos_x == curPlayer1->objPos_x && curPlayer1->objPos_y == Pos_y) {
 								std::cout << "Not a valid move" << endl;
 								continue;
 							}
 							else {
-								steps++;
-								std::shared_ptr<Cell> room = maze->FindRoomByPos(Pos_x, Pos_y);
-								if (Pos_x != maze->finalPos_x || Pos_y != maze->finalPos_y) { curPlayer->SetObjRoom(room); }
+								std::shared_ptr<Cell> room = maze1->FindRoomByPos(Pos_x, Pos_y);
+								if (Pos_x != maze1->finalPos_x || Pos_y != maze1->finalPos_y) { curPlayer1->SetObjRoom(room); }
 								//check for key
-								if (maze->mazeKeyPtr->objPos_x == Pos_x && maze->mazeKeyPtr->objPos_y == Pos_y) {
-									curPlayer->hasKey = true;
+								if (maze1->mazeKeyPtr->objPos_x == Pos_x && maze1->mazeKeyPtr->objPos_y == Pos_y) {
+									curPlayer1->hasKey = true;
 									Mix_PlayChannel(-1, keysound, 0);
 								}
 								//check for door
-								if (Pos_x == maze->finalPos_x && Pos_y == maze->finalPos_y && curPlayer->hasKey) {
+								if (Pos_x == maze1->finalPos_x && Pos_y == maze1->finalPos_y && curPlayer1->hasKey) {
 									curGameState = Win;
 									break;
 								}
 								//check for diamonds
-								for (int i = 0; i < maze->mazeDiamondPtrs.size(); i++) {
-									if (maze->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
-										maze->mazeDiamondPtrs[i]->consumed = true;
+								for (int i = 0; i < maze1->mazeDiamondPtrs.size(); i++) {
+									if (maze1->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze1->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
+										maze1->mazeDiamondPtrs[i]->consumed = true;
 										Mix_PlayChannel(-1, sparkle, 0);
-										score += 100;
+										score1 += 100;
 									}
 								}
 								//check for guards
-								for (int i = 0; i < maze->mazeGuardPtrs.size(); i++) {
-									if (maze->mazeGuardPtrs[i]->objPos_x == Pos_x && maze->mazeGuardPtrs[i]->objPos_y == Pos_y) {
+								for (int i = 0; i < maze1->mazeGuardPtrs.size(); i++) {
+									if (maze1->mazeGuardPtrs[i]->objPos_x == Pos_x && maze1->mazeGuardPtrs[i]->objPos_y == Pos_y) {
 										Mix_PlayChannel(-1, boom, 0);
-										if (curPlayer->playerLives == 1) {
+										if (curPlayer1->playerLives == 1) {
 											curGameState = GameOver;
 											break;
 										}
-										curPlayer->playerLives--;
-										lives--;
-										curPlayer->SetPlayerToStart(maze->FindRoomByPos(maze->startPos_x, maze->startPos_y));
+										curPlayer1->playerLives--;
+										lives1--;
+										curPlayer1->SetPlayerToStart(maze1->FindRoomByPos(maze1->startPos_x, maze1->startPos_y));
 										break;
 									}
 								}
-							}				
-						}
-					GameScreen(maze, curPlayer, score, steps, lives);
 
-					} 
+							}
+						}
+					}
+						else {
+							player1 = true;
+							if (gameEvent->key.keysym.sym == SDLK_r && curPlayer2->playerLives > 1) {
+								curPlayer2->playerLives--;
+								lives2--;
+								curPlayer2->SetPlayerToStart(maze2->FindRoomByPos(maze2->startPos_x, maze2->startPos_y));
+							}
+							else if (gameEvent->key.keysym.sym == SDLK_DOWN ||
+								gameEvent->key.keysym.sym == SDLK_LEFT ||
+								gameEvent->key.keysym.sym == SDLK_RIGHT ||
+								gameEvent->key.keysym.sym == SDLK_UP) {
+								maze2->NextMazeCycle();
+								int Pos_y = curPlayer2->objPos_y;
+								int Pos_x = curPlayer2->objPos_x;
+								switch (gameEvent->key.keysym.sym)
+								{
+								case SDLK_UP:
+									if (curPlayer2->curObjRoom->northWall == false)
+									{
+										Pos_x--;
+
+									}
+									break;
+
+								case SDLK_RIGHT:
+									if (curPlayer2->curObjRoom->eastWall == false)
+									{
+										Pos_y++;
+
+									}
+									break;
+
+								case SDLK_DOWN:
+									if (curPlayer2->curObjRoom->southWall == false)
+									{
+										Pos_x++;
+									}
+									break;
+
+								case SDLK_LEFT:
+									if (curPlayer2->curObjRoom->westWall == false)
+									{
+										Pos_y--;
+									}
+									break;
+
+								default:
+									std::cout << "Not a valid move!" << std::endl;
+									return false;
+									break;
+								}
+
+								if (Pos_x == curPlayer2->objPos_x && curPlayer2->objPos_y == Pos_y) {
+									std::cout << "Not a valid move" << endl;
+									continue;
+								}
+								else {
+									std::shared_ptr<Cell> room = maze2->FindRoomByPos(Pos_x, Pos_y);
+									if (Pos_x != maze2->finalPos_x || Pos_y != maze2->finalPos_y) { curPlayer2->SetObjRoom(room); }
+									//check for key
+									if (maze2->mazeKeyPtr->objPos_x == Pos_x && maze2->mazeKeyPtr->objPos_y == Pos_y) {
+										curPlayer2->hasKey = true;
+										Mix_PlayChannel(-1, keysound, 0);
+									}
+									//check for door
+									if (Pos_x == maze2->finalPos_x && Pos_y == maze2->finalPos_y && curPlayer2->hasKey) {
+										curGameState = Win;
+										break;
+									}
+									//check for diamonds
+									for (int i = 0; i < maze2->mazeDiamondPtrs.size(); i++) {
+										if (maze2->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze2->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
+											maze2->mazeDiamondPtrs[i]->consumed = true;
+											Mix_PlayChannel(-1, sparkle, 0);
+											score2 += 100;
+										}
+									}
+									//check for guards
+									for (int i = 0; i < maze2->mazeGuardPtrs.size(); i++) {
+										if (maze2->mazeGuardPtrs[i]->objPos_x == Pos_x && maze2->mazeGuardPtrs[i]->objPos_y == Pos_y) {
+											Mix_PlayChannel(-1, boom, 0);
+											if (curPlayer2->playerLives == 1) {
+												curGameState = GameOver;
+												break;
+											}
+											curPlayer2->playerLives--;
+											lives2--;
+											curPlayer2->SetPlayerToStart(maze2->FindRoomByPos(maze2->startPos_x, maze2->startPos_y));
+											break;
+										}
+									}
+
+								}
+							}
+						}
+					GameScreenDouble(maze1, maze2, curPlayer1, curPlayer2, lives1, score1, lives2, score2);
+
+				}
+
 
 			}
+
 		}
-		
-		}
+	}
 	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(gwindow);

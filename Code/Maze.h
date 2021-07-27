@@ -41,6 +41,7 @@ public:
 	void CreateDoor();
 	void CreateDiamonds();
 	void CreateGuards();
+	void initialiseMaze(SDL_Renderer* roomRenderer, int GameArea_w, int GameArea_h, int GameArea_y, int GameArea_x);
 };
 
 #endif

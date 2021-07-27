@@ -46,6 +46,13 @@ public:
 			GameArea_W / w, GameArea_H / h
 		};
 	}
+	void MakeRoomRect(int h, int w, int GameArea_w, int GameArea_h, int GameArea_y, int GameArea_x) {
+		roomRect = {
+			GameArea_x + col * (GameArea_w / w),
+			GameArea_y + row * (GameArea_h / h),
+			GameArea_w / w, GameArea_h / h
+		};
+	}
 
 };
 
