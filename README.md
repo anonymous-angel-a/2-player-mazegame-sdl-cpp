@@ -1,1 +1,1 @@
-# 2-player-mazegame-sdl-cpp
+# 2-player-mazegame
