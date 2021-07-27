@@ -8,7 +8,6 @@ Contents
 - [Intro](#intro)
 - [Overview](#overview)
 - [Installation](#installation)
-- [Features](#features)
 - [Classes](#classes)
 	- [main](#main)
  	- [Cell](#cell)
@@ -19,7 +18,6 @@ Contents
 		- [MazeDiamond](#mazediamond)
 		- [MazeGuard](#mazeguard)
 		- [Player](#player)
-- [SDL2 Libraries](#sdl2-libraries)
 
 ### Intro
 -----
@@ -36,6 +34,51 @@ If the user wins, i.e. reaches the bottom left of the maze within the use of 10 
 ![Alt Text](Game/WinScreen.jpeg)
 If the user loses, i.e. loses all the lives before reaching the bottom left of the maze then this game over screen appears. 
 ![Alt Text](Game/GameOverScreen.jpeg)
+
+### Overview
+Created using 
+- **Microsoft Visual C++**
+- **Microsoft Visual Studio 2019**
+- **SDL2 2.0.14**
+- **SDL2 Image 2.0.5**
+- **SDL2 TTF 2.0.15**
+- **SDL2 Mixer 2.0.4**
+- **Boost**
+
+### Installation
+1. Download the project. 
+2. Open the Solution in Microsoft Visual Studio (double click the **.sln file** inside the code folder)
+3. Change the Build Configuration to x86
+4. Use the Local Windows Debugger to Build and Run the game
+
+### Classes
+#### main
+The main.cpp initialises the game and contains the gameplay loops. This class handles creating the window and renderer, rendering the objects and displaying information. This class handles the current game state according to which contents are shown on the screen. If the game state is 'single' or 'double', maze(s) and player(s) are created and the gameloop is executed. 
+#### cell
+Cell.h contains the cell class which makes up the maze. Each Room has information about its position (row, col in the maze), direction of walls, room rectangle and others. 
+#### maze
+The maze.cpp contains the logic for creating and initialising  maze and maze objects. The maze can be thought of as matrix of cells which are interconnnected to each other. It is created using bfs and backtracking algorithm. It has functions for rendering the maze and a virtual function 'NextCycle' to change the guard positions regularly. 
+#### MazeObject
+The MazeObject is the parent class for all maze objects including the player, diamonds, key, door and guards. It has functions for rendering the object image and keeping track of the current room the object is in. 
+##### Mazekey
+This class contains the key the player needs to collect.
+##### MazeDoor
+This class contains the door the player needs to reach to win. This is located at bottom right of the maze.
+##### MazeDiamond
+This class contains the diamonds the player can collect on the way to increase score. Each diamond adds 100 to the score. These are spread randomly across maze. 
+##### MazeGuard
+This class contains the monsters that can take life of the player if the player and monster are in one cell at any point of time. These guards are capable of moving by a few cells. 
+##### Player 
+This class contains the player of the game and functions to move the player, reset it to start. 
+
+
+
+
+
+
+
+
+
 
 
 
