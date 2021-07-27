@@ -30,6 +30,8 @@ After that there is a menu in which the user can play a single player game, or a
 ![Alt Text](Game/AboutScreen.jpeg)
 A single player game screen looks like follows. The game staticstics are displayed on the right part of the screen. The objects are rendered everytime a keyboard button is pressed. The princess moves by using up, down, left, right buttons. R can be used to reset the princess to top left at the cost of one life. ESC button can be used to reach to menu screen
 ![Alt Text](Game/SinglePlayerScreen.jpeg)
+A double player screen looks like follows. Each player takes turns to make the move with player 1 starting first. 
+![Alt Text](Game/DoublePlayerScreen.jpeg)
 If the user wins, i.e. reaches the bottom left of the maze within the use of 10 lives, then the win screen appears.
 ![Alt Text](Game/WinScreen.jpeg)
 If the user loses, i.e. loses all the lives before reaching the bottom left of the maze then this game over screen appears. 
