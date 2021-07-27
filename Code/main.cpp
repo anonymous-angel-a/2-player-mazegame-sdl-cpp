@@ -537,7 +537,7 @@ int main(int argc, char** args) {
 							}
 							//check for diamonds
 							for (int i = 0; i < maze->mazeDiamondPtrs.size(); i++) {
-								if (maze->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
+								if (maze->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze->mazeDiamondPtrs[i]->objPos_y == Pos_y && maze->mazeDiamondPtrs[i]->consumed == false) {
 									maze->mazeDiamondPtrs[i]->consumed = true;
 									Mix_PlayChannel(-1, sparkle, 0);
 									score += 100;
@@ -671,7 +671,7 @@ int main(int argc, char** args) {
 								}
 								//check for diamonds
 								for (int i = 0; i < maze1->mazeDiamondPtrs.size(); i++) {
-									if (maze1->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze1->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
+									if (maze1->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze1->mazeDiamondPtrs[i]->objPos_y == Pos_y && maze1->mazeDiamondPtrs[i]->consumed == false) {
 										maze1->mazeDiamondPtrs[i]->consumed = true;
 										Mix_PlayChannel(-1, sparkle, 0);
 										score1 += 100;
@@ -766,7 +766,7 @@ int main(int argc, char** args) {
 									}
 									//check for diamonds
 									for (int i = 0; i < maze2->mazeDiamondPtrs.size(); i++) {
-										if (maze2->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze2->mazeDiamondPtrs[i]->objPos_y == Pos_y) {
+										if (maze2->mazeDiamondPtrs[i]->objPos_x == Pos_x && maze2->mazeDiamondPtrs[i]->objPos_y == Pos_y && maze2->mazeDiamondPtrs[i]->consumed == false) {
 											maze2->mazeDiamondPtrs[i]->consumed = true;
 											Mix_PlayChannel(-1, sparkle, 0);
 											score2 += 100;
