@@ -18,7 +18,7 @@ Contents
 		- [MazeDiamond](#mazediamond)
 		- [MazeGuard](#mazeguard)
 		- [Player](#player)
--[References](#references)
+- [References](#references)
 
 ### Intro
 -----
