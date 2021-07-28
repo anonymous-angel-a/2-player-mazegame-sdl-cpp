@@ -49,6 +49,7 @@ Created using
 - **Boost**
 
 ### Installation
+#### For Windows
 1. Download the project. 
 2. Download boost files from [link](https://www.boost.org/users/download/) and add to deps folder inside code folder.  
 3. Open the Solution in Microsoft Visual Studio (double click the **.sln file** inside the code folder)
