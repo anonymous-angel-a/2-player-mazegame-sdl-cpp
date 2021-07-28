@@ -50,9 +50,10 @@ Created using
 
 ### Installation
 1. Download the project. 
-2. Open the Solution in Microsoft Visual Studio (double click the **.sln file** inside the code folder)
-3. Change the Build Configuration to x86
-4. Use the Local Windows Debugger to Build and Run the game
+2. Download boost files from [link](https://www.boost.org/users/download/) and add to deps folder inside code folder.  
+3. Open the Solution in Microsoft Visual Studio (double click the **.sln file** inside the code folder)
+4. Change the Build Configuration to x86
+5. Use the Local Windows Debugger to Build and Run the game
 
 ### Classes
 #### main
